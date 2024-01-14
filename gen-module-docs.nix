@@ -13,10 +13,10 @@ let
       })
       modules;
   };
-  optionsDoc = nixosOptionsDoc
-    {
-      inherit (eval) options;
-    };
+  options = filterAttrs (name: value: name != "_module") eval.options;
+  optionsDoc = nixosOptionsDoc {
+    inherit options;
+  };
 in
 pkgs.runCommand "options-doc.md" { } ''
   cat ${optionsDoc.optionsCommonMark} >> $out
