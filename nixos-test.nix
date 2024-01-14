@@ -8,7 +8,7 @@ pkgs.nixosTest {
 
     services.ngrok = {
       enable = true;
-      authtoken = "test5";
+      authtoken = "test6";
       tunnels = {
         test = {
           proto = "http";
