@@ -21,7 +21,7 @@ in
         type = with types; attrs;
         default = { };
         description = ''
-          This is a map of names to tunnel definitions. See https://ngrok.com/docs/agent/config/#tunnel-configurations for more details.
+          This is a map of names to tunnel definitions. See [tunnel-configurations](https://ngrok.com/docs/agent/config/#tunnel-configurations) for more details.
         '';
       };
 
@@ -45,7 +45,7 @@ in
         type = with types; attrs;
         default = { };
         description = ''
-          Additional agent configuration. See https://ngrok.com/docs/agent/config/ for options.
+          Additional agent configuration. See [agent config](https://ngrok.com/docs/agent/config/) for options.
         '';
       };
 
@@ -53,7 +53,7 @@ in
         type = with types; listOf str;
         default = [ ];
         description = ''
-          Additional configuration files placed after the declarative options. See https://ngrok.com/docs/agent/config/#config-file-merging for merging details.
+          Additional configuration files placed after the declarative options. See [config file merging](https://ngrok.com/docs/agent/config/#config-file-merging) for merging details.
           Use this for sensitive configuration that shouldn't go into the nixos configuration and nix store.
         '';
       };
