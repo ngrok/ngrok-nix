@@ -10,6 +10,13 @@ let
     checkinterval = 600;
     enableemail = false;
     emailoverride = "";
+    inputs = {
+      foo = {
+        type = "string";
+        value = "bar";
+        emailresponsible = false;
+      };
+    };
   };
   pr_data = fromJSON (readFile pulls);
   makePr = num: info: {
