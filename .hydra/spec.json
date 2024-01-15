@@ -1,0 +1,25 @@
+{
+	"enabled": 1,
+	"hidden": false,
+	"description": "jobsets",
+	"nixexprinput": "src",
+	"nixexprpath": ".hydra/jobsets.nix",
+	"checkinterval": 300,
+	"schedulingshares": 1,
+	"enableemail": false,
+	"enable_dynamic_run_command": false,
+	"emailoverride": "",
+	"keepnr": 0,
+	"inputs": {
+		"src": {
+			"type": "git",
+			"value": "git+ssh://git@github.com/ngrok/ngrok-nix main",
+			"emailresponsible": false
+		},
+		"pulls": {
+			"type": "githubpulls",
+			"value": "ngrok ngrok-nix",
+			"emailresponsible": false
+		}
+	}
+}
