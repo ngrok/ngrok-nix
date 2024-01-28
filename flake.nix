@@ -2,6 +2,9 @@
   description = "nix modules for working with ngrok";
 
   outputs = { self, nixpkgs, flake-utils, ... }@inputs: {
+    homeManagerModules = {
+      ngrok = import ./home-manager.nix;
+    };
     nixosModules = {
       ngrok = import ./nixos.nix;
     };
