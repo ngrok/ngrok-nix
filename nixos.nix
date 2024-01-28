@@ -9,14 +9,6 @@ in
     services.ngrok = {
       enable = mkEnableOption "ngrok service";
 
-      authtoken = mkOption {
-        type = with types; uniq (nullOr str);
-        default = null;
-        description = ''
-          Your ngrok authtoken. To avoid storing your authtoken in nix config, see the `extraConfigFiles` option.
-        '';
-      };
-
       tunnels = mkOption {
         type = with types; attrs;
         default = { };
@@ -77,7 +69,7 @@ in
             name = "ngrok-config";
             text = toJSON
               ({
-                inherit (cfg) authtoken tunnels log_level log_format;
+                inherit (cfg) tunnels log_level log_format;
                 version = "2";
                 log = "stdout";
               } // cfg.extraConfig);

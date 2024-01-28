@@ -1,7 +1,5 @@
 ## services\.ngrok\.enable
 
-
-
 Whether to enable ngrok service\.
 
 
@@ -18,22 +16,6 @@ boolean
 
 *Example:*
 ` true `
-
-
-
-## services\.ngrok\.authtoken
-
-Your ngrok authtoken\. To avoid storing your authtoken in nix config, see the ` extraConfigFiles ` option\.
-
-
-
-*Type:*
-null or string
-
-
-
-*Default:*
-` null `
 
 
 
