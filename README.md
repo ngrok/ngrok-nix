@@ -36,7 +36,7 @@ in
 flake.nix
 ---------
 
-With flakes, this are even easier:
+With flakes, things are even easier:
 
 ```nix
 {
