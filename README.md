@@ -25,7 +25,7 @@ in
     enable = true;
     extraConfig = { };
     extraConfigFiles = [
-      # reference to a file containing `authtoken` and `api_key` secrets
+      # reference to files containing `authtoken` and `api_key` secrets
       # ngrok will merge these, together with `extraConfig`
     ];
     tunnels = {
@@ -57,7 +57,7 @@ With flakes, things are even easier:
             enable = true;
             extraConfig = { };
             extraConfigFiles = [
-              # reference to a file containing `authtoken` and `api_key` secrets
+              # reference to files containing `authtoken` and `api_key` secrets
               # ngrok will merge these, together with `extraConfig`
             ];
             tunnels = {
