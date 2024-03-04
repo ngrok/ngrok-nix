@@ -23,9 +23,11 @@ in
   ];
   services.ngrok = {
     enable = true;
-    extraConfig = {
-      authtoken = "<YOUR_AUTHTOKEN>";
-    };
+    extraConfig = { };
+    extraConfigFiles = [
+      # reference to a file containing `authtoken` and `api_key` secrets
+      # ngrok will merge these, together with `extraConfig`
+    ];
     tunnels = {
       # ...
     };
@@ -53,9 +55,11 @@ With flakes, things are even easier:
           nixpkgs.config.allowUnfree = true;
           services.ngrok = {
             enable = true;
-            extraConfig = {
-              authtoken = "<YOUR_AUTHTOKEN>";
-            };
+            extraConfig = { };
+            extraConfigFiles = [
+              # reference to a file containing `authtoken` and `api_key` secrets
+              # ngrok will merge these, together with `extraConfig`
+            ];
             tunnels = {
               # ...
             };
