@@ -1,4 +1,9 @@
-{ lib, pkgs, config, ... }:
+{
+  lib,
+  pkgs,
+  config,
+  ...
+}:
 with lib;
 with builtins;
 let
@@ -79,62 +84,68 @@ in
       };
     };
   };
-  config = mkIf cfg.enable
-    {
-      users.groups.${cfg.group} = {};
+  config = mkIf cfg.enable {
+    users.groups.${cfg.group} = { };
 
-      users.users.${cfg.user} = {
-        isSystemUser = true;
-        home = "/var/lib/ngrok";
-        createHome = true;
-        shell = null;
-        inherit (cfg) group;
-      };
+    users.users.${cfg.user} = {
+      isSystemUser = true;
+      home = "/var/lib/ngrok";
+      createHome = true;
+      shell = null;
+      inherit (cfg) group;
+    };
 
-      systemd.services.ngrok =
-        let
-          commonConfig = {
-            version = "${toString cfg.configFileVersion}";
+    systemd.services.ngrok =
+      let
+        commonConfig = {
+          version = "${toString cfg.configFileVersion}";
 
-            inherit (cfg) tunnels endpoints;
-          };
+          inherit (cfg) tunnels endpoints;
+        };
 
-          v2Config = commonConfig // {
+        v2Config =
+          commonConfig
+          // {
             inherit (cfg) log_level log_format;
             log = "stdout";
-          } // cfg.extraConfig;
+          }
+          // cfg.extraConfig;
 
-          v3Config = commonConfig // cfg.extraConfig // {
+        v3Config =
+          commonConfig
+          // cfg.extraConfig
+          // {
             agent = {
               inherit (cfg) log_level log_format;
               log = "stdout";
-            } // (cfg.extraConfig.agent or {});
+            } // (cfg.extraConfig.agent or { });
           };
 
-          configFile = if cfg.configFileVersion == 2 then v2Config else v3Config;
+        configFile = if cfg.configFileVersion == 2 then v2Config else v3Config;
 
-          ngrokConfig = pkgs.writeTextFile {
-            name = "ngrok-config";
-            text = toJSON configFile;
-          };
-          startArg = if (length (attrNames cfg.tunnels) > 0 || length cfg.endpoints > 0)  then "--all" else "--none";
-          extraConfigs = concatStringsSep " " (map (file: "--config ${file}") cfg.extraConfigFiles);
-        in
-        {
-          description = "The ngrok agent.";
-          wantedBy = [ "multi-user.target" ];
-          after = [ "network.target" ];
-          unitConfig = {
-            StartLimitInterval = "5s";
-            StartLimitBurst = "10s";
-          };
-          serviceConfig = {
-            ExecStart = "${pkgs.ngrok}/bin/ngrok --config ${ngrokConfig} ${extraConfigs} start ${startArg}";
-            Restart = "always";
-            RestartSec = "15";
-            User = "ngrok";
-            Group = "ngrok";
-          };
+        ngrokConfig = pkgs.writeTextFile {
+          name = "ngrok-config";
+          text = toJSON configFile;
         };
-    };
+        startArg =
+          if (length (attrNames cfg.tunnels) > 0 || length cfg.endpoints > 0) then "--all" else "--none";
+        extraConfigs = concatStringsSep " " (map (file: "--config ${file}") cfg.extraConfigFiles);
+      in
+      {
+        description = "The ngrok agent.";
+        wantedBy = [ "multi-user.target" ];
+        after = [ "network.target" ];
+        unitConfig = {
+          StartLimitInterval = "5s";
+          StartLimitBurst = "10s";
+        };
+        serviceConfig = {
+          ExecStart = "${pkgs.ngrok}/bin/ngrok --config ${ngrokConfig} ${extraConfigs} start ${startArg}";
+          Restart = "always";
+          RestartSec = "15";
+          User = "ngrok";
+          Group = "ngrok";
+        };
+      };
+  };
 }
