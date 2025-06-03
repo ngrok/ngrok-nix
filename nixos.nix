@@ -89,7 +89,7 @@ in
 
     users.users.${cfg.user} = {
       isSystemUser = true;
-      home = "/var/lib/ngrok";
+      home = "/var/lib/${cfg.user}";
       createHome = true;
       shell = null;
       inherit (cfg) group;
@@ -143,8 +143,8 @@ in
           ExecStart = "${pkgs.ngrok}/bin/ngrok --config ${ngrokConfig} ${extraConfigs} start ${startArg}";
           Restart = "always";
           RestartSec = "15";
-          User = "ngrok";
-          Group = "ngrok";
+          User = cfg.user;
+          Group = cfg.group;
         };
       };
   };
