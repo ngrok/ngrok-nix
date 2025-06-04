@@ -1,5 +1,7 @@
 ## services\.ngrok\.enable
 
+
+
 Whether to enable ngrok service\.
 
 
@@ -16,6 +18,40 @@ boolean
 
 *Example:*
 ` true `
+
+
+
+## services\.ngrok\.configFileVersion
+
+The version of the ngrok config file\. See [ngrok Agent Configuration File](https://ngrok\.com/docs/agent/config/)\.
+
+
+
+*Type:*
+integer between 2 and 3 (both inclusive)
+
+
+
+*Default:*
+` 3 `
+
+
+
+## services\.ngrok\.endpoints
+
+
+
+This is a list of endpoint definitions\. See [Endpoint Definitions](https://ngrok\.com/docs/agent/config/v3/\#endpoint-definitions) for more details\.
+
+
+
+*Type:*
+list of (attribute set)
+
+
+
+*Default:*
+` [ ] `
 
 
 
@@ -53,6 +89,24 @@ list of string
 
 *Default:*
 ` [ ] `
+
+
+
+## services\.ngrok\.group
+
+
+
+Group which runs the ngrok agent\.
+
+
+
+*Type:*
+string
+
+
+
+*Default:*
+` "ngrok" `
 
 
 
@@ -96,7 +150,7 @@ string
 
 
 
-This is a map of names to tunnel definitions\. See [tunnel-configurations](https://ngrok\.com/docs/agent/config/\#tunnel-configurations) for more details\.
+\[Deprecated: Use endpoints instead] This is a map of names to tunnel definitions\. See [tunnel-configurations](https://ngrok\.com/docs/agent/config/\#tunnel-configurations) for more details\.
 
 
 
@@ -107,5 +161,23 @@ attribute set
 
 *Default:*
 ` { } `
+
+
+
+## services\.ngrok\.user
+
+
+
+User which runs the ngrok agent\.
+
+
+
+*Type:*
+string
+
+
+
+*Default:*
+` "ngrok" `
 
 

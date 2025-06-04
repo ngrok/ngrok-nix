@@ -1,4 +1,9 @@
-{ lib, pkgs, config, ... }:
+{
+  lib,
+  pkgs,
+  config,
+  ...
+}:
 with lib;
 with builtins;
 let
@@ -13,7 +18,15 @@ in
         type = with types; attrs;
         default = { };
         description = ''
-          This is a map of names to tunnel definitions. See [tunnel-configurations](https://ngrok.com/docs/agent/config/#tunnel-configurations) for more details.
+          [Deprecated: Use endpoints instead] This is a map of names to tunnel definitions. See [tunnel-configurations](https://ngrok.com/docs/agent/config/#tunnel-configurations) for more details.
+        '';
+      };
+
+      endpoints = mkOption {
+        type = types.listOf types.attrs;
+        default = [ ];
+        description = ''
+          This is a list of endpoint definitions. See [Endpoint Definitions](https://ngrok.com/docs/agent/config/v3/#endpoint-definitions) for more details.
         '';
       };
 
@@ -33,6 +46,14 @@ in
         '';
       };
 
+      configFileVersion = mkOption {
+        type = types.ints.between 2 3;
+        default = 3;
+        description = ''
+          The version of the ngrok config file. See [ngrok Agent Configuration File](https://ngrok.com/docs/agent/config/).
+        '';
+      };
+
       extraConfig = mkOption {
         type = with types; attrs;
         default = { };
@@ -49,49 +70,82 @@ in
           Use this for sensitive configuration that shouldn't go into the nixos configuration and nix store.
         '';
       };
+
+      user = mkOption {
+        type = types.str;
+        default = "ngrok";
+        description = "User which runs the ngrok agent.";
+      };
+
+      group = mkOption {
+        type = types.str;
+        default = "ngrok";
+        description = "Group which runs the ngrok agent.";
+      };
     };
   };
-  config = mkIf cfg.enable
-    {
-      users.groups = {
-        ngrok = { };
-      };
-      users.users.ngrok = {
-        isSystemUser = true;
-        home = "/var/lib/ngrok";
-        createHome = true;
-        shell = null;
-        group = "ngrok";
-      };
-      systemd.services.ngrok =
-        let
-          ngrokConfig = pkgs.writeTextFile {
-            name = "ngrok-config";
-            text = toJSON
-              ({
-                inherit (cfg) tunnels log_level log_format;
-                version = "2";
-                log = "stdout";
-              } // cfg.extraConfig);
-          };
-          startArg = if length (attrNames cfg.tunnels) > 0 then "--all" else "--none";
-          extraConfigs = concatStringsSep " " (map (file: "--config ${file}") cfg.extraConfigFiles);
-        in
-        {
-          description = "The ngrok agent.";
-          wantedBy = [ "multi-user.target" ];
-          after = [ "network.target" ];
-          unitConfig = {
-            StartLimitInterval = "5s";
-            StartLimitBurst = "10s";
-          };
-          serviceConfig = {
-            ExecStart = "${pkgs.ngrok}/bin/ngrok --config ${ngrokConfig} ${extraConfigs} start ${startArg}";
-            Restart = "always";
-            RestartSec = "15";
-            User = "ngrok";
-            Group = "ngrok";
-          };
-        };
+  config = mkIf cfg.enable {
+    users.groups.${cfg.group} = { };
+
+    users.users.${cfg.user} = {
+      isSystemUser = true;
+      home = "/var/lib/${cfg.user}";
+      createHome = true;
+      shell = null;
+      inherit (cfg) group;
     };
+
+    systemd.services.ngrok =
+      let
+        commonConfig = {
+          version = "${toString cfg.configFileVersion}";
+
+          inherit (cfg) tunnels endpoints;
+        };
+
+        v2Config =
+          commonConfig
+          // {
+            inherit (cfg) log_level log_format;
+            log = "stdout";
+          }
+          // cfg.extraConfig;
+
+        v3Config =
+          commonConfig
+          // cfg.extraConfig
+          // {
+            agent = {
+              inherit (cfg) log_level log_format;
+              log = "stdout";
+            } // (cfg.extraConfig.agent or { });
+          };
+
+        configFile = if cfg.configFileVersion == 2 then v2Config else v3Config;
+
+        ngrokConfig = pkgs.writeTextFile {
+          name = "ngrok-config";
+          text = toJSON configFile;
+        };
+        startArg =
+          if (length (attrNames cfg.tunnels) > 0 || length cfg.endpoints > 0) then "--all" else "--none";
+        extraConfigs = concatStringsSep " " (map (file: "--config ${file}") cfg.extraConfigFiles);
+      in
+      {
+        description = "The ngrok agent.";
+        wantedBy = [ "multi-user.target" ];
+        after = [ "network.target" ];
+        unitConfig = {
+          StartLimitInterval = "5s";
+          StartLimitBurst = "10s";
+        };
+        serviceConfig = {
+          ExecStart = "${pkgs.ngrok}/bin/ngrok --config ${ngrokConfig} ${extraConfigs} start ${startArg}";
+          Restart = "always";
+          RestartSec = "15";
+          User = cfg.user;
+          Group = cfg.group;
+        };
+      };
+  };
 }
